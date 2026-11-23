@@ -57,3 +57,16 @@ Battle.csv
 - `cow_warname` — Correlates of War war name
 - `war_initiator` — War initiation indicator
 - `parent` — Related or parent record identifier (definition unverified)
+
+
+## Setup and Execution
+
+**Dependencies:** Python 3.10+, pandas, numpy, scikit-learn, shap
+
+**Install:**
+    pip install pandas numpy scikit-learn shap
+
+**Run:** Place `battles.csv` in the same folder as `main.py`, then run:
+    python main.py
+
+The program trains a Random Forest on the battle data, prints test accuracy and a confusion matrix, then shows SHAP explanations for one confident correct prediction and one low-confidence miss.
