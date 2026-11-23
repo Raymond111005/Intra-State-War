@@ -26,6 +26,8 @@ FEATURE_NAMES = {
 
 def run():
     df = pd.read_csv(DATA_PATH)
+    df = df[df['is_hero'] == 1].copy()
+
     if (df[TARGET] < 0).any():
     # Clean CDB90 file: -1 values are intact, so NaNs are truly unknown outcomes
         df = df.dropna(subset=[TARGET]).copy()
