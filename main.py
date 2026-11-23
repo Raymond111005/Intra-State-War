@@ -20,14 +20,18 @@ TARGET = 'wina'
 
 def run():
     df = pd.read_csv(DATA_PATH)
-    df = df.dropna(subset=[TARGET]).copy()
     X = df[FEATURES].apply(pd.to_numeric, errors='coerce')
-    y = df[TARGET].astype(int)
+    if (df[TARGET] < 0).any():
+    # Clean CDB90 file: -1 values are intact, so NaNs are truly unknown outcomes
+        df = df.dropna(subset=[TARGET]).copy()
+        y = df[TARGET].astype(int)
+    else:
+        y = df[TARGET].fillna(-1).astype(int)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=471, stratify=y
     )
-    imputer = SimpleImputer(strategy='median', keep_empty_features=True)
+    imputer = SimpleImputer(strategy='constant', fill_value=-1, keep_empty_features=True)
     X_train_filled = pd.DataFrame(imputer.fit_transform(X_train), columns=FEATURES, index=X_train.index)
     X_test_filled = pd.DataFrame(imputer.transform(X_test), columns=FEATURES, index=X_test.index)
 
@@ -40,8 +44,8 @@ def run():
     print(f'Test accuracy: {accuracy_score(y_test, predictions):.3f}')
     print(f'Test balanced accuracy: {balanced_accuracy_score(y_test, predictions):.3f}')
     print(f'Majority baseline accuracy: {accuracy_score(y_test, baseline):.3f}')
-    print('Confusion matrix (rows=actual, columns=predicted; class order 0,1):')
-    print(confusion_matrix(y_test, predictions, labels=[0, 1]))
+    print('Confusion matrix (rows=actual, columns=predicted; class order -1, 0, 1):')
+    print(confusion_matrix(y_test, predictions, labels=[-1, 0, 1]))
 
     example = X_test_filled.iloc[[0]]
     prediction = int(model.predict(example)[0])
